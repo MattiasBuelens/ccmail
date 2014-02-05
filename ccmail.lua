@@ -128,8 +128,12 @@ btnExit:on("buttonpress", function()
 	screen:stop()
 end)
 
+-- Setup
 logout()
+
+-- Run
 screen:run()
 
--- Restore
+-- Teardown
+logout()
 screen:reset()
