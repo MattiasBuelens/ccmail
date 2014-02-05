@@ -44,7 +44,6 @@ local loginView = LoginView:new{
 
 local inboxView = ccgui.FlowContainer:new{
 	stretch = true,
-	visible = false,
 	horizontal = true
 }
 local messagesList = ccgui.FlowContainer:new{
@@ -61,8 +60,22 @@ local messageView = MessageView:new{
 	stretch = true,
 	_name = "messageView"
 }
+local statusBar = ccgui.TextElement:new{
+	foreground = colours.white,
+	background = colours.lightGrey,
+	_name = "statusBar"
+}
 inboxView:add(messagesScroll, messageView)
-screen:add(menuBar, loginView, inboxView)
+screen:add(menuBar, loginView, inboxView, statusBar)
+
+function setStatus(text)
+	statusBar.foreground = colours.white
+	statusBar:setText(text or "")
+end
+function setError(err)
+	statusBar.foreground = colours.red
+	statusBar:setText(err or "Error")
+end
 
 function loadMessages()
 	local messages = client:get()
@@ -84,6 +97,7 @@ function logout()
 	end
 	inboxView:hide()
 	loginView:show()
+	setStatus("Logged out")
 end
 function login()
 	local address, password = loginView:getAddress(), loginView:getPassword()
@@ -91,12 +105,12 @@ function login()
 		client = Client:new(address, password)
 		client:open()
 		loadMessages()
+		setStatus("Logged in as "..address)
 		loginView:hide()
 		inboxView:show()
-	end, function(ok, err)
+	end, function(task, ok, err)
 		if not ok then
-			-- TODO Show in UI
-			error(err)
+			setError(err)
 		end
 	end)
 	task:start(scheduler)
@@ -114,6 +128,7 @@ btnExit:on("buttonpress", function()
 	screen:stop()
 end)
 
+logout()
 screen:run()
 
 -- Restore

@@ -8,15 +8,21 @@
 local EventEmitter	= require "event.EventEmitter"
 local Message		= require "ccmail.Message"
 
+-- Custom assert with error level 0
+local function assert(test, message, ...)
+	if test then return test, message, ...
+	else error(message, 0) end
+end
+
 local Client = EventEmitter:subclass("ccmail.Client")
 function Client:initialize(address, password)
 	super.initialize(self, opts)
 
-	self.address = assert(address, "Missing address.")
-	self.password = assert(password, "Missing password.")
+	self.address = assert(address, "Missing address")
+	self.password = assert(password, "Missing password")
 
 	self.username, self.hostname = self:parseAddress(self.address)
-	assert(self.username, "Bad address format.")
+	assert(self.username, "Bad address format")
 	
 	self.hostid = nil
 
@@ -59,7 +65,7 @@ function Client:lookupHost()
 	if not self.hostid then
 		self.hostid = rednet.lookup("mail", self.hostname)
 	end
-	return assert(self.hostid, "Host not found.")
+	return assert(self.hostid, "Host not found")
 end
 -- Send authenticated mail message
 function Client:sendAuth(tMessage)
@@ -87,7 +93,7 @@ function Client:awaitResponse(checkCallback)
         elseif sEvent == "timer" then
             -- Check for timeout
             if p1 == timer then
-                error("Timed out.")
+                error("Timed out")
             end
         end
     end
@@ -104,7 +110,7 @@ function Client:get()
 		if tMessage.sType == "mail"  then
 			return tMessage.tMail
 		elseif tMessage.sType == "login failed" then
-			error(tMessage.sReason or "Failed.")
+			error(tMessage.sReason or "Failed", 0)
 		end
 	end)
 	-- Make Message objects
@@ -131,7 +137,7 @@ function Client:send(toAddress, subject, message)
 		if tMessage.sType == "send confirmed" and tMessage.nMailID == nMailID then
 			return true
 		elseif (tMessage.sType == "send failed" or tMessage.sType == "login failed") and tMessage.nMailID == nMailID then
-			error(tMessage.sReason or "Failed.")
+			error(tMessage.sReason or "Failed", 0)
 		end
 	end)
 end
