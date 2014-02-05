@@ -8,6 +8,7 @@
 local FlowContainer = require "ccgui.FlowContainer"
 local TextElement	= require "ccgui.TextElement"
 local TextInput		= require "ccgui.TextInput"
+local PasswordInput	= require "ccgui.PasswordInput"
 local Button		= require "ccgui.Button"
 local Align			= require "ccgui.Align"
 local Margins		= require "ccgui.geom.Margins"
@@ -18,10 +19,12 @@ function LoginField:initialize(opts)
 	
 	super.initialize(self, opts)
 	
+	self.valueClass = opts.valueClass or TextInput
+	
 	self.labelText = TextElement:new{
 		text = assert(opts.label, "missing field label")
 	}
-	self.valueInput = TextInput:new{
+	self.valueInput = self.valueClass:new{
 		text = opts.value or "",
 		stretch = true
 	}
@@ -45,7 +48,8 @@ function LoginView:initialize(opts)
 		label = "Address:  "
 	}
 	self.passwordField = LoginField:new{
-		label = "Password: "
+		label = "Password: ",
+		valueClass = PasswordInput
 	}
 	self.loginButton = Button:new{
 		text = "Log in",
