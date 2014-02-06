@@ -7,6 +7,7 @@
 
 local FlowContainer		= require "ccgui.FlowContainer"
 local ScrollWrapper		= require "ccgui.ScrollWrapper"
+local RadioGroup		= require "ccgui.RadioGroup"
 local MessageView		= require "ccmail.MessageView"
 local MessageListItem	= require "ccmail.MessageListItem"
 
@@ -16,6 +17,8 @@ function BoxView:initialize(opts)
 	
 	super.initialize(self, opts)
 	
+	self.messageItems = {}
+	self.messagesRadio = ccgui.RadioGroup:new{}
 	self.messagesList = ccgui.FlowContainer:new{
 		horizontal = false
 	}
@@ -32,17 +35,25 @@ function BoxView:initialize(opts)
 end
 
 function BoxView:setMessages(messages)
+	-- Remove old items
 	self.messagesList:removeAll()
+	self.messageItems = {}
+	-- Add new items
 	for i,message in ipairs(messages) do
 		local item = MessageListItem:new{
-			message = message
+			message = message,
+			radioGroup = self.messagesRadio
 		}
-		item:on("buttonpress", function()
+		self.messageItems[i] = item
+		item:on("select", function()
 			self.messageView:setMessage(message)
 		end, self)
 		self.messagesList:add(item)
 	end
-	self.messageView:setMessage(messages[1])
+	-- Select first item
+	if self.messageItems[1] then
+		self.messageItems[1]:select()
+	end
 	self:markRepaint()
 end
 
