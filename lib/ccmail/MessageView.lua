@@ -43,7 +43,7 @@ function MessageView:initialize(opts)
 		label = "Subject: "
 	}
 	self.fromField = MessageField:new{
-		label = "From: "
+		label = "   From: "
 	}
 	self.messageText = TextViewer:new{
 		stretch = true

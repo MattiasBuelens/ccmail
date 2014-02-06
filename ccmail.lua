@@ -14,9 +14,7 @@ local ccgui				= require "ccgui"
 local Scheduler			= require "concurrent.Scheduler"
 local Thread			= require "concurrent.Thread"
 local Client			= require "ccmail.Client"
-local LoginView			= require "ccmail.LoginView"
-local MessageListItem	= require "ccmail.MessageListItem"
-local MessageView		= require "ccmail.MessageView"
+local MainView			= require "ccmail.MainView"
 
 local client
 local scheduler = Scheduler:new()
@@ -28,45 +26,15 @@ local screen = ccgui.Page:new{
 	background = colours.white,
 	_name = "screen"
 }
-
-local menuBar = ccgui.menu.MenuBar:new{
-	_name = "menuBar"
-}
-local menuFile = ccgui.menu.Menu:new{}
-local btnLogout = menuFile:addButton("Log out")
-local btnExit = menuFile:addButton("Exit")
-menuBar:addMenu("CCMail", menuFile)
-
-local loginView = LoginView:new{
-	stretch = true,
-	padding = 3
-}
-
-local inboxView = ccgui.FlowContainer:new{
-	stretch = true,
-	horizontal = true
-}
-local messagesList = ccgui.FlowContainer:new{
-	horizontal = false,
-	_name = "messagesList"
-}
-local messagesScroll = ccgui.ScrollWrapper:new{
-	horizontal = false,
-	vertical = true,
-	content = messagesList,
-	_name = "messagesScroll"
-}
-local messageView = MessageView:new{
-	stretch = true,
-	_name = "messageView"
+local view = MainView:new{
+	stretch = true
 }
 local statusBar = ccgui.TextElement:new{
 	foreground = colours.white,
 	background = colours.lightGrey,
 	_name = "statusBar"
 }
-inboxView:add(messagesScroll, messageView)
-screen:add(menuBar, loginView, inboxView, statusBar)
+screen:add(view, statusBar)
 
 function setStatus(text)
 	statusBar.foreground = colours.white
@@ -77,37 +45,34 @@ function setError(err)
 	statusBar:setText(err or "Error")
 end
 
-function loadMessages()
-	local messages = client:get()
-	messagesList:removeAll()
-	for i,message in ipairs(messages) do
-		local item = MessageListItem:new{
-			message = message
-		}
-		item:on("buttonpress", function()
-			messageView:setMessage(message)
-		end, item)
-		messagesList:add(item)
-	end
-end
 function logout()
 	if client then
 		client:close()
 		client = nil
 	end
-	inboxView:hide()
-	loginView:show()
+	view:setClient(nil)
 	setStatus("Logged out")
 end
-function login()
-	local address, password = loginView:getAddress(), loginView:getPassword()
+function login(address, password)
 	local task = Thread:new(function()
 		client = Client:new(address, password)
 		client:open()
-		loadMessages()
+		local messages = client:get()
+		view:setClient(client)
+		view:setMessages(messages)
 		setStatus("Logged in as "..address)
-		loginView:hide()
-		inboxView:show()
+	end, function(task, ok, err)
+		if not ok then
+			view:setClient(nil)
+			setError(err)
+		end
+	end)
+	task:start(scheduler)
+end
+function send(to, subject, message)
+	local task = Thread:new(function()
+		client:send(to, subject, message)
+		setStatus("Sent to "..to)
 	end, function(task, ok, err)
 		if not ok then
 			setError(err)
@@ -116,14 +81,17 @@ function login()
 	task:start(scheduler)
 end
 
-loginView:on("loginpress", function()
+view:on("loginpress", function(address, password)
 	logout()
-	login()
+	login(address, password)
 end)
-btnLogout:on("buttonpress", function()
+view:on("logoutpress", function()
 	logout()
 end)
-btnExit:on("buttonpress", function()
+view:on("sendpress", function(to, subject, message)
+	send(to, subject, message)
+end)
+view:on("exitpress", function()
 	logout()
 	screen:stop()
 end)

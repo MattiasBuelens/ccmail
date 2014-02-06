@@ -45,7 +45,7 @@ function LoginView:initialize(opts)
 	super.initialize(self, opts)
 	
 	self.addressField = LoginField:new{
-		label = "Address:  "
+		label = " Address: "
 	}
 	self.passwordField = LoginField:new{
 		label = "Password: ",
@@ -67,7 +67,7 @@ function LoginView:getPassword()
 	return self.passwordField:getValue()
 end
 function LoginView:loginButtonPressed()
-	self:trigger("loginpress")
+	self:trigger("loginpress", self:getAddress(), self:getPassword())
 end
 
 -- Exports
