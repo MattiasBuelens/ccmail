@@ -63,6 +63,7 @@ function MessageView:updateMessage()
 	self.subjectField:setValue(message and message.subject or "")
 	self.fromField:setValue(message and message.from or "")
 	self.messageText:setText(message and message.message or "")
+	self:markRepaint()
 end
 
 -- Exports
