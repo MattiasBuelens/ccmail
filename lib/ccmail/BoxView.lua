@@ -25,10 +25,11 @@ function BoxView:initialize(opts)
 	self.messagesScroll = ccgui.ScrollWrapper:new{
 		horizontal = false,
 		vertical = true,
+		stretch = 1,
 		content = self.messagesList
 	}
 	self.messageView = MessageView:new{
-		stretch = true
+		stretch = 2
 	}
 	
 	self:add(self.messagesScroll, self.messageView)
