@@ -6,36 +6,13 @@
 --]]
 
 local FlowContainer = require "ccgui.FlowContainer"
+local GridContainer = require "ccgui.GridContainer"
 local TextElement	= require "ccgui.TextElement"
 local TextInput		= require "ccgui.TextInput"
 local PasswordInput	= require "ccgui.PasswordInput"
 local Button		= require "ccgui.Button"
 local Align			= require "ccgui.Align"
 local Margins		= require "ccgui.geom.Margins"
-
-local LoginField = FlowContainer:subclass("ccmail.LoginField")
-function LoginField:initialize(opts)
-	opts.horizontal = true
-	
-	super.initialize(self, opts)
-	
-	self.valueClass = opts.valueClass or TextInput
-	
-	self.labelText = TextElement:new{
-		text = assert(opts.label, "missing field label")
-	}
-	self.valueInput = self.valueClass:new{
-		text = opts.value or "",
-		stretch = true
-	}
-	self:add(self.labelText, self.valueInput)
-end
-function LoginField:getValue()
-	return self.valueInput:getText()
-end
-function LoginField:setValue(value)
-	self.valueInput:setText(value)
-end
 
 local LoginView = FlowContainer:subclass("ccmail.LoginView")
 function LoginView:initialize(opts)
@@ -44,27 +21,55 @@ function LoginView:initialize(opts)
 	
 	super.initialize(self, opts)
 	
-	self.addressField = LoginField:new{
-		label = " Address: "
+	self.fields = GridContainer:new{
+		colSpacing = 1,
+		rowSpacing = 1,
+		colSpecs = {
+			GridContainer.GridSpec:new(false),
+			GridContainer.GridSpec:new(true)
+		},
+		rowSpecs = {
+			GridContainer.GridSpec:new(false),
+			GridContainer.GridSpec:new(false),
+		}
 	}
-	self.passwordField = LoginField:new{
-		label = "Password: ",
-		valueClass = PasswordInput
+	
+	self.addressLabel = TextElement:new{
+		rowIndex = 1,
+		colIndex = 1,
+		text = "Address:",
+		align = Align.Right
 	}
+	self.addressField = TextInput:new{
+		rowIndex = 1,
+		colIndex = 2
+	}
+	self.passwordLabel = TextElement:new{
+		rowIndex = 2,
+		colIndex = 1,
+		text = "Password:",
+		align = Align.Right
+	}
+	self.passwordField = PasswordInput:new{
+		rowIndex = 2,
+		colIndex = 2
+	}
+	self.fields:add(self.addressLabel, self.addressField, self.passwordLabel, self.passwordField)
+	
 	self.loginButton = Button:new{
 		text = "Log in",
 		align = Align.Center
 	}
-	self:add(self.addressField, self.passwordField, self.loginButton)
+	self:add(self.fields, self.loginButton)
 	
 	self.loginButton:on("buttonpress", self.loginButtonPressed, self)
 end
 
 function LoginView:getAddress()
-	return self.addressField:getValue()
+	return self.addressField:getText()
 end
 function LoginView:getPassword()
-	return self.passwordField:getValue()
+	return self.passwordField:getText()
 end
 function LoginView:loginButtonPressed()
 	self:trigger("loginpress", self:getAddress(), self:getPassword())
