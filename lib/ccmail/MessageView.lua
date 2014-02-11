@@ -29,25 +29,25 @@ function MessageView:initialize(opts)
 			GridContainer.GridSpec:new(false),
 		}
 	}
-	self.subjectLabel = TextElement:new{
-		rowIndex = 1,
-		colIndex = 1,
-		text = "Subject:"
-	}
-	self.subjectText = TextElement:new{
-		rowIndex = 1,
-		colIndex = 2
-	}
 	self.fromLabel = TextElement:new{
-		rowIndex = 2,
+		rowIndex = 1,
 		colIndex = 1,
 		text = "From:"
 	}
 	self.fromText = TextElement:new{
+		rowIndex = 1,
+		colIndex = 2
+	}
+	self.subjectLabel = TextElement:new{
+		rowIndex = 2,
+		colIndex = 1,
+		text = "Subject:"
+	}
+	self.subjectText = TextElement:new{
 		rowIndex = 2,
 		colIndex = 2
 	}
-	self.fields:add(self.subjectLabel, self.subjectText, self.fromLabel, self.fromText)
+	self.fields:add(self.fromLabel, self.fromText, self.subjectLabel, self.subjectText)
 	
 	self.messageText = TextViewer:new{
 		stretch = true
