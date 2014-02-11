@@ -46,12 +46,19 @@ function setError(err)
 end
 
 function logout()
-	if client then
-		client:close()
-		client = nil
-	end
-	view:setClient(nil)
-	setStatus("Logged out")
+	local task = Thread:new(function()
+		if client then
+			client:close()
+			client = nil
+		end
+		setStatus("Logged out")
+	end, function(task, ok, err)
+		view:setClient(nil)
+		if not ok then
+			setError(err)
+		end
+	end)
+	task:start(scheduler)
 end
 function login(address, password)
 	local task = Thread:new(function()
