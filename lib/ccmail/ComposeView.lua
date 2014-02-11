@@ -11,6 +11,7 @@ local TextElement	= require "ccgui.TextElement"
 local TextArea		= require "ccgui.TextArea"
 local TextInput		= require "ccgui.TextInput"
 local Button		= require "ccgui.Button"
+local Margins		= require "ccgui.geom.Margins"
 local Align			= require "ccgui.Align"
 local VAlign		= require "ccgui.VAlign"
 
@@ -21,11 +22,11 @@ function ComposeView:initialize(opts)
 	super.initialize(self, opts)
 	
 	self.header = FlowContainer:new{
-		horizontal = true
+		horizontal = true,
+		spacing = 1
 	}
 	self.fields = GridContainer:new{
 		stretch = true,
-		padding = 1,
 		colSpacing = 1,
 		colSpecs = {
 			GridContainer.GridSpec:new(false),

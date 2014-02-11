@@ -10,6 +10,7 @@ local GridContainer = require "ccgui.GridContainer"
 local TextElement	= require "ccgui.TextElement"
 local TextViewer	= require "ccgui.TextViewer"
 local Margins		= require "ccgui.geom.Margins"
+local Align			= require "ccgui.Align"
 
 local MessageView = FlowContainer:subclass("ccmail.MessageView")
 function MessageView:initialize(opts)
@@ -32,7 +33,8 @@ function MessageView:initialize(opts)
 	self.fromLabel = TextElement:new{
 		rowIndex = 1,
 		colIndex = 1,
-		text = "From:"
+		text = "From:",
+		align = Align.Right
 	}
 	self.fromText = TextElement:new{
 		rowIndex = 1,
@@ -41,7 +43,8 @@ function MessageView:initialize(opts)
 	self.subjectLabel = TextElement:new{
 		rowIndex = 2,
 		colIndex = 1,
-		text = "Subject:"
+		text = "Subject:",
+		align = Align.Right
 	}
 	self.subjectText = TextElement:new{
 		rowIndex = 2,
